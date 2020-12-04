@@ -5,7 +5,11 @@ type Cond = String -> Bool
 
 answer = do
   f <- readFile "4-input.txt"
-  print $ length $ filter (\x -> present x && valid x) $ map (concat . (map words)) $ paragraphs (lines f)
+  let ids = map (concat . (map words)) $ paragraphs (lines f)
+  putStrLn "Answer 1: "
+  print $ length $ filter (\x -> present x) ids
+  putStrLn "Answer 2: "
+  print $ length $ filter (\x -> present x && valid x) ids
 
 paragraphs = map (filter (/= "")) . groupBy (\x y -> y /= "")
 

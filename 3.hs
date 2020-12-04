@@ -1,7 +1,10 @@
-answer2 = do
+answer = do
   f <- readFile "3-input.txt"
   let tss = map trees $ lines f
-  return $ product $ map length [impact tss 1 1,impact tss 3 1,impact tss 5 1,impact tss 7 1,impact tss 1 2]
+  putStrLn "Answer 1:"
+  print $ length $ impact tss 3 1
+  putStrLn "Answer 2:"
+  print $ product $ map length [impact tss 1 1,impact tss 3 1,impact tss 5 1,impact tss 7 1,impact tss 1 2]
 
 trees :: String -> [Int]
 trees s = [n `mod` 31 | (c,n) <- zip s [1..],c == '#']

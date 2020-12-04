@@ -1,15 +1,13 @@
 import Data.Char
 type Quad = (Int,Int,Char,String)
 
-answer1 = do
+answer = do
   f <- readFile "2-input.txt" 
   let quads = map (process. words) $ lines f :: [Quad]
-  return $ length $ filter valid1 quads
-
-answer2 = do
-  f <- readFile "2-input.txt" 
-  let quads = map (process. words) $ lines f :: [Quad]
-  return $ length $ filter valid2 quads
+  putStrLn "Answer 1: "
+  print $ length $ filter valid1 quads
+  putStrLn "Answer 2: "
+  print $ length $ filter valid2 quads
    
 process :: [String] -> Quad 
 process [s1,s2,s3] = (a,b,head s2,s3)
