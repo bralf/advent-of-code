@@ -1,6 +1,5 @@
 import Data.List
 import Data.Char
-import qualified Data.Set as S
 
 data Colour = C String String
   deriving (Show,Eq)
@@ -11,17 +10,13 @@ answer = do
   f <- readFile "7-input.txt"
   let ls = map words (lines f)
   let rs = map rule ls
-  let cs = map colour ls
+  let sg = (C "shiny" "gold")
   putStrLn "Answer 1:"
-  print $ length.nub $ containers rs (C "shiny" "gold")
+  print $ length.nub $ containers rs sg
   putStrLn "Answer 2:"
-  return $ noContains rs (C "shiny" "gold")
+  return $ noContains rs sg
 
-----Parsing the file  
-
-colour :: [String] -> Colour
-colour l = C a b
-  where (a:b:_) = take 2 l
+----Parsing the file
 
 readContents :: String -> (Int,Colour)
 readContents st = (n,C a b)
@@ -31,7 +26,7 @@ readContents st = (n,C a b)
         b  = ws !! 2    
 
 contents :: String -> [(Int,Colour)]
-contents l = map (readContents.dropWhile (not.isDigit)) (groupBy (\x y -> y /= ',') l)
+contents l = map (readContents.dropWhile (not.isDigit)) (groupBy (\_ y -> y /= ',') l)
 
 rule :: [String] -> Rule
 rule l | head (rest) == "no" = (C a b,[])
