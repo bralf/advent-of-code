@@ -5,7 +5,7 @@ import qualified Data.Set as S
 data Colour = C String String
   deriving (Show,Eq)
 type Rule = (Colour,[(Int,Colour)])
-type RG = [Rule]
+type RGraph = [Rule]
 
 answer = do
   f <- readFile "7-input.txt"
@@ -42,19 +42,19 @@ rule l | head (rest) == "no" = (C a b,[])
 
 --------Problem 1
 
-containers1 :: [Rule] -> Colour -> [Colour]
+containers1 :: RGraph -> Colour -> [Colour]
 containers1 rs c = [rc | (rc,rncs) <- rs, c `elem` map snd rncs]
 
-containers :: [Rule] -> Colour -> [Colour]
+containers :: RGraph -> Colour -> [Colour]
 containers rs c = containers1 rs c ++ concat (map (containers rs) (containers1 rs c)) 
 
 --------Problem 2
 
-contentsCN :: [Rule] -> Colour -> [(Int,Colour)]
+contentsCN :: RGraph -> Colour -> [(Int,Colour)]
 contentsCN rs c = [(ni,ci) | let rcncs = snd rc, (ni,ci) <- rcncs]
   where rc = head $ filter (\r -> fst r == c) rs
 
-noContains :: [Rule] -> Colour -> Int
+noContains :: RGraph -> Colour -> Int
 noContains rs c = sum [ni+ni*nci | (ni,ci) <- contentsCN rs c,let nci = noContains rs ci]
 
 
