@@ -22,20 +22,15 @@ execute :: [Inst] -> State CodeState Line
 execute insts = do
   (acc,log,l,n) <- get
   let insts' = changeInsts n insts
-  if (l>length insts')
-    then return acc
-  else if l `elem` log
-    then if (n==0)
-           then return acc
-         else do
-           put (0,[],1,n+1)
-           execute insts
-    else do
-      put (doInst (acc,log,l,n) (insts' !! (l-1)))
-      execute insts
+  case () of _
+                | (l>length insts') || (l `elem` log && (n==0)) -> return acc
+                | l `elem` log -> put (0,[],1,n+1) >> execute insts
+                | otherwise -> put (doInst (acc,log,l,n) (insts' !! (l-1))) >> execute insts
+                 
+
 
 doInst :: CodeState -> Inst -> CodeState
-doInst (acc,log,l,n) (Nop,m) = (acc,l:log,l+1,n)
+doInst (acc,log,l,n) (Nop,_) = (acc,l:log,l+1,n)
 doInst (acc,log,l,n) (Acc,m) = (acc+m,l:log,l+1,n)
 doInst (acc,log,l,n) (Jmp,m) = (acc,l:log,l+m,n)
 
