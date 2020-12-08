@@ -4,7 +4,7 @@ import Control.Monad.State.Lazy
 
 type Acc = Int
 type Log = [Line]
-type CodeState = (Acc,Log,Line)
+type CodeState = (Acc,Log,Line,Int)
 type Line = Int
 data Cmd = Nop | Acc | Jmp
   deriving (Show,Eq)
@@ -12,48 +12,39 @@ type Inst = (Cmd,Int)
 
 answer = do
   f <- readFile "8-input.txt"
-  let ls = lines f
-  let insts = map readLine ls
+  let insts = map readLine (lines f)
   putStrLn "Answer 1:"
-  print $ evalState (execute1 insts) start
+  print $ evalState (execute insts) (0,[],1,0)  
   putStrLn "Answer 2:"
-  return $ evalState (execute2 insts 1) start
+  return $ evalState (execute insts) (0,[],1,1) 
 
-execute1 :: [Inst] -> State CodeState Line
-execute1 insts = do
-  (acc,log,l) <- get
-  if l `elem` log
+execute :: [Inst] -> State CodeState Line
+execute insts = do
+  (acc,log,l,n) <- get
+  let insts' = changeInsts n insts
+  if (l>length insts')
     then return acc
-    else do put (doInst (acc,log,l) (insts !! (l-1)))
-            execute1 insts
-
-execute2 :: [Inst] -> Int -> State CodeState Line
-execute2 insts i = do
-  let insts' = changeInsts i insts
-  (acc,log,l) <- get
-  if l `elem` log
-    then do
-      put start
-      execute2 insts (i+1)
-  else if (l>length insts')
-    then return acc
-  else do
-     put (doInst (acc,log,l) (insts' !! (l-1)))
-     execute2 insts i
+  else if l `elem` log
+    then if (n==0)
+           then return acc
+         else do
+           put (0,[],1,n+1)
+           execute insts
+    else do
+      put (doInst (acc,log,l,n) (insts' !! (l-1)))
+      execute insts
 
 doInst :: CodeState -> Inst -> CodeState
-doInst (acc,log,l) (Nop,n) = (acc,l:log,l+1)
-doInst (acc,log,l) (Acc,n) = (acc+n,l:log,l+1)
-doInst (acc,log,l) (Jmp,n) = (acc,l:log,l+n)
+doInst (acc,log,l,n) (Nop,m) = (acc,l:log,l+1,n)
+doInst (acc,log,l,n) (Acc,m) = (acc+m,l:log,l+1,n)
+doInst (acc,log,l,n) (Jmp,m) = (acc,l:log,l+m,n)
 
 changeInsts :: Int -> [Inst] -> [Inst]
-changeInsts i insts | cmd == Nop = as ++ ((Jmp,n):bs)
-                    | cmd == Jmp = as ++ ((Nop,n):bs)
+changeInsts 0 insts = insts
+changeInsts i insts | cmd == Nop = as ++ ((Jmp,m):bs)
+                    | cmd == Jmp = as ++ ((Nop,m):bs)
                     | cmd == Acc = insts
-  where (as,((cmd, n):bs)) = splitAt (i-1) insts
-
-start :: CodeState
-start = (0,[],1)
+  where (as,((cmd, m):bs)) = splitAt (i-1) insts
 
 ---Parsing file
 
