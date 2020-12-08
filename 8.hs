@@ -24,11 +24,7 @@ execute1 insts = do
   (acc,log,l) <- get
   if l `elem` log
     then return acc
-    else do let (cmd,n) = (insts !! (l-1))
-            case cmd of
-              Nop -> put (acc,l:log,l+1)
-              Acc -> put (acc+n,l:log,l+1)
-              Jmp -> put (acc,l:log,l+n)
+    else do put (doInst (acc,log,l) (insts !! (l-1)))
             execute1 insts
 
 execute2 :: [Inst] -> Int -> State CodeState Line
@@ -42,19 +38,19 @@ execute2 insts i = do
   else if (l>length insts')
     then return acc
   else do
-     let (cmd,n) = (insts' !! (l-1))
-     case cmd of
-       Nop -> put (acc,l:log,l+1)
-       Acc -> put (acc+n,l:log,l+1)
-       Jmp -> put (acc,l:log,l+n)
-     execute2 insts i 
+     put (doInst (acc,log,l) (insts' !! (l-1)))
+     execute2 insts i
+
+doInst :: CodeState -> Inst -> CodeState
+doInst (acc,log,l) (Nop,n) = (acc,l:log,l+1)
+doInst (acc,log,l) (Acc,n) = (acc+n,l:log,l+1)
+doInst (acc,log,l) (Jmp,n) = (acc,l:log,l+n)
 
 changeInsts :: Int -> [Inst] -> [Inst]
 changeInsts i insts | cmd == Nop = as ++ ((Jmp,n):bs)
                     | cmd == Jmp = as ++ ((Nop,n):bs)
                     | cmd == Acc = insts
   where (as,((cmd, n):bs)) = splitAt (i-1) insts
-
 
 start :: CodeState
 start = (0,[],1)
