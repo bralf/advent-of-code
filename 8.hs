@@ -26,9 +26,7 @@ execute insts = do
                 | (l>length insts') || (l `elem` log && (n==0)) -> return acc
                 | l `elem` log -> put (0,[],1,n+1) >> execute insts
                 | otherwise -> put (doInst (acc,log,l,n) (insts' !! (l-1))) >> execute insts
-                 
-
-
+               
 doInst :: CodeState -> Inst -> CodeState
 doInst (acc,log,l,n) (Nop,_) = (acc,l:log,l+1,n)
 doInst (acc,log,l,n) (Acc,m) = (acc+m,l:log,l+1,n)
