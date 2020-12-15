@@ -4,7 +4,7 @@ answer = do
   putStrLn "Answer 1:"
   print $ (\(m,n) -> m*n) $ divAfter (read l1) (readNums ' ' l2)
   putStrLn "Answer 2:"
-  print $ fst $ foldl remComb (1,0) (remList (readNums '0' l2))
+  print $ if coprime (readNums ' ' l2) then fst $ foldl remComb (1,0) (remList (readNums '0' l2)) else error "Not coprime"
 
 --Reading
 
@@ -18,13 +18,13 @@ readNums a = (map read) . words . map (comToSpaceXtoA a)
 
 --Problem 1
 
-coprime :: [Int] -> Bool
-coprime ns = null [(n,m)| n<-ns,m<-ns,n/=m,gcd n m /= 1]
-
 divAfter :: Int -> [Int] -> (Int,Int)
 divAfter n bs = head [(ni-n,b) | ni <- [n..],b<-bs,mod ni b == 0]
 
 --Problem 2
+
+coprime :: [Int] -> Bool
+coprime ns = null [(n,m)| n<-ns,m<-ns,n/=m,gcd n m /= 1]
 
 remList :: [Int] -> [(Int,Int)]
 remList bs = [(b,((-r `mod` b)+b) `mod` b) | (b,r)<-zip bs [0..],b/=0]
